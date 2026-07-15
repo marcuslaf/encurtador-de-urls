@@ -22,7 +22,7 @@ class RateLimitIntegrationTest extends IntegrationTestBase {
 
     @Test
     void shouldBlockEleventhRequestInOneMinute() throws Exception {
-        CreateUrlRequest req = new CreateUrlRequest("https://example.com/" + System.nanoTime(), 60);
+        CreateUrlRequest req = new CreateUrlRequest("https://example.com/" + System.nanoTime(), 60, null);
         byte[] body = objectMapper.writeValueAsBytes(req);
 
         // Fazer 10 requisições (dentro do limite)

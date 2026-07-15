@@ -24,49 +24,49 @@ class CreateUrlRequestTest {
 
     @Test
     void shouldAcceptValidHttpUrl() {
-        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("http://example.com", 60));
+        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("http://example.com", 60, null));
         assertTrue(violations.isEmpty());
     }
 
     @Test
     void shouldAcceptValidHttpsUrl() {
-        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("https://example.com/path", 43200));
+        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("https://example.com/path", 43200, null));
         assertTrue(violations.isEmpty());
     }
 
     @Test
     void shouldRejectBlankUrl() {
-        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("", 60));
+        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("", 60, null));
         assertFalse(violations.isEmpty());
     }
 
     @Test
     void shouldRejectUrlWithoutScheme() {
-        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("example.com", 60));
+        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("example.com", 60, null));
         assertFalse(violations.isEmpty());
     }
 
     @Test
     void shouldRejectFtpScheme() {
-        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("ftp://example.com", 60));
+        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("ftp://example.com", 60, null));
         assertFalse(violations.isEmpty());
     }
 
     @Test
     void shouldRejectExpirationTooSmall() {
-        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("https://x.com", 0));
+        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("https://x.com", 0, null));
         assertFalse(violations.isEmpty());
     }
 
     @Test
     void shouldRejectExpirationTooLarge() {
-        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("https://x.com", 43201));
+        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("https://x.com", 43201, null));
         assertFalse(violations.isEmpty());
     }
 
     @Test
     void shouldAllowNullExpirationToUseDefault() {
-        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("https://x.com", null));
+        Set<ConstraintViolation<CreateUrlRequest>> violations = validator.validate(new CreateUrlRequest("https://x.com", null, null));
         assertTrue(violations.isEmpty());
     }
 }

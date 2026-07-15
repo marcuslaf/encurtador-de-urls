@@ -35,7 +35,7 @@ class UrlIntegrationTest extends IntegrationTestBase {
 
     @Test
     void shouldShortenAndRedirectWithCache() throws Exception {
-        CreateUrlRequest req = new CreateUrlRequest("https://example.com/some/long/path", 60);
+        CreateUrlRequest req = new CreateUrlRequest("https://example.com/some/long/path", 60, null);
 
         MvcResult created = mockMvc.perform(post("/api/urls")
                         .with(req1 -> { req1.setRemoteAddr("203.0.113.1"); return req1; })
@@ -82,7 +82,7 @@ class UrlIntegrationTest extends IntegrationTestBase {
 
     @Test
     void shouldReturn400ForInvalidUrl() throws Exception {
-        CreateUrlRequest req = new CreateUrlRequest("not-a-url", 60);
+        CreateUrlRequest req = new CreateUrlRequest("not-a-url", 60, null);
         mockMvc.perform(post("/api/urls")
                         .with(req1 -> { req1.setRemoteAddr("203.0.113.2"); return req1; })
                         .contentType(MediaType.APPLICATION_JSON)

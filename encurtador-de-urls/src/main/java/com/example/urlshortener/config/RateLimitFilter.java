@@ -3,6 +3,7 @@ package com.example.urlshortener.config;
 import com.example.urlshortener.exception.RateLimitExceededException;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
+import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConsumptionProbe;
 import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
 import io.github.bucket4j.distributed.proxy.ProxyManager;
@@ -24,7 +25,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
@@ -80,11 +80,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
     }
 
-    private Bandwidth newBucketConfiguration() {
-        return Bandwidth.builder()
+    private BucketConfiguration newBucketConfiguration() {
+        Bandwidth limit = Bandwidth.builder()
                 .capacity(capacity)
                 .refillIntervally(refillTokens, Duration.ofSeconds(refillPeriodSeconds))
                 .build();
+        return BucketConfiguration.builder().addLimit(limit).build();
     }
 
     private String clientIp(HttpServletRequest req) {

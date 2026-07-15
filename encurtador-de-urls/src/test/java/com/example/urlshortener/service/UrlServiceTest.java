@@ -3,7 +3,6 @@ package com.example.urlshortener.service;
 import com.example.urlshortener.dto.CreateUrlRequest;
 import com.example.urlshortener.dto.CreateUrlResponse;
 import com.example.urlshortener.dto.UrlStatsResponse;
-import com.example.urlshortener.entity.AccessLog;
 import com.example.urlshortener.entity.Url;
 import com.example.urlshortener.exception.UrlNotFoundException;
 import com.example.urlshortener.repository.AccessLogRepository;
@@ -50,7 +49,7 @@ class UrlServiceTest {
         when(urlRepository.existsByShortCode(CODE)).thenReturn(false);
         when(urlRepository.save(any(Url.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        CreateUrlResponse resp = urlService.shorten(new CreateUrlRequest(URL_STR, null));
+        CreateUrlResponse resp = urlService.shorten(new CreateUrlRequest(URL_STR, null, null));
 
         assertEquals(CODE, resp.shortCode());
         assertEquals("http://localhost:8080/" + CODE, resp.shortUrl());
@@ -69,7 +68,7 @@ class UrlServiceTest {
         when(urlRepository.existsByShortCode(CODE)).thenReturn(false);
         when(urlRepository.save(any(Url.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        CreateUrlResponse resp = urlService.shorten(new CreateUrlRequest(URL_STR, 60));
+        CreateUrlResponse resp = urlService.shorten(new CreateUrlRequest(URL_STR, 60, null));
 
         assertEquals(CODE, resp.shortCode());
         verify(shortCodeGenerator, times(2)).generate();
@@ -95,14 +94,12 @@ class UrlServiceTest {
         Url persisted = sampleUrl();
         when(urlRepository.findByShortCode(CODE)).thenReturn(Optional.of(persisted));
         when(urlRepository.save(any(Url.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(accessLogRepository.findByUrlIdAndAccessDate(anyLong(), any(LocalDate.class)))
-                .thenReturn(Optional.empty());
 
         String resolved = urlService.resolve(CODE);
 
         assertEquals(URL_STR, resolved);
         verify(cacheService).putRedirection(eq(CODE), eq(URL_STR), any(Duration.class));
-        verify(accessLogRepository).save(any(AccessLog.class));
+        verify(accessLogRepository).upsertAccessLog(eq(persisted.getId()), any(LocalDate.class));
     }
 
     @Test
@@ -142,22 +139,13 @@ class UrlServiceTest {
     }
 
     @Test
-    void deactivateExpiredShouldDeactivateAndEvictCache() {
-        Url u1 = sampleUrl();
-        u1.setExpiresAt(Instant.now().minusSeconds(60));
-        Url u2 = sampleUrl();
-        u2.setShortCode("xyz9876");
-        u2.setExpiresAt(Instant.now().minusSeconds(60));
-        when(urlRepository.findAllByActiveTrueAndExpiresAtBefore(any(Instant.class))).thenReturn(List.of(u1, u2));
-        when(urlRepository.saveAll(anyList())).thenAnswer(inv -> inv.getArgument(0));
+    void deactivateExpiredShouldUseBulkUpdate() {
+        when(urlRepository.deactivateExpired(any(Instant.class))).thenReturn(2);
 
         int count = urlService.deactivateExpired();
 
         assertEquals(2, count);
-        assertFalse(u1.isActive());
-        assertFalse(u2.isActive());
-        verify(cacheService).evictRedirection(u1.getShortCode());
-        verify(cacheService).evictRedirection(u2.getShortCode());
+        verify(urlRepository).deactivateExpired(any(Instant.class));
     }
 
     private Url sampleUrl() {
