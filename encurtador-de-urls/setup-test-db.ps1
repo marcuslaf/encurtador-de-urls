@@ -3,12 +3,12 @@
 
 Write-Host "=== Configurando banco de dados de teste ===" -ForegroundColor Cyan
 
-# Credenciais (pode ajustar se necessário)
+# Credenciais via variáveis de ambiente (ou valores padrão)
 $dbHost = "localhost"
 $dbPort = "5432"
 $dbName = "urlshortener_test"
-$dbUser = "postgres"
-$dbPass = "631966"
+$dbUser = if ($env:TEST_DB_USERNAME) { $env:TEST_DB_USERNAME } else { "postgres" }
+$dbPass = if ($env:TEST_DB_PASSWORD) { $env:TEST_DB_PASSWORD } else { "postgres" }
 
 # Verificar se o PostgreSQL está acessível
 Write-Host "Verificando conexão com PostgreSQL..." -ForegroundColor Yellow

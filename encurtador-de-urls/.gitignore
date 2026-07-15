@@ -7,3 +7,5 @@ target/
 .settings/
 *.log
 .DS_Store
+*.env
+.env.local
