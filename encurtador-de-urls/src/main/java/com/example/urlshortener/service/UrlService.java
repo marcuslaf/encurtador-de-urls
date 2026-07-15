@@ -3,7 +3,6 @@ package com.example.urlshortener.service;
 import com.example.urlshortener.dto.CreateUrlRequest;
 import com.example.urlshortener.dto.CreateUrlResponse;
 import com.example.urlshortener.dto.UrlStatsResponse;
-import com.example.urlshortener.entity.AccessLog;
 import com.example.urlshortener.entity.Url;
 import com.example.urlshortener.exception.UrlNotFoundException;
 import com.example.urlshortener.repository.AccessLogRepository;
@@ -125,27 +124,15 @@ public class UrlService {
 
     @Transactional
     public int deactivateExpired() {
-        List<Url> expired = urlRepository.findAllByActiveTrueAndExpiresAtBefore(Instant.now());
-        for (Url u : expired) {
-            u.setActive(false);
-            cacheService.evictRedirection(u.getShortCode());
-        }
-        if (!expired.isEmpty()) {
-            urlRepository.saveAll(expired);
-        }
-        log.info("Deactivated {} expired URLs", expired.size());
-        return expired.size();
+        int deactivated = urlRepository.deactivateExpired(Instant.now());
+        log.info("Deactivated {} expired URLs", deactivated);
+        return deactivated;
     }
 
     private void registerAccess(Url url) {
         url.setAccessCount(url.getAccessCount() + 1);
         urlRepository.save(url);
-
-        LocalDate today = LocalDate.now();
-        AccessLog logEntry = accessLogRepository.findByUrlIdAndAccessDate(url.getId(), today)
-                .orElse(new AccessLog(url.getId(), today));
-        logEntry.setAccessCount(logEntry.getAccessCount() + 1);
-        accessLogRepository.save(logEntry);
+        accessLogRepository.upsertAccessLog(url.getId(), LocalDate.now());
     }
 
     private String generateUniqueShortCode() {
