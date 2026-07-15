@@ -163,6 +163,13 @@ public class UrlService {
                         u.getExpiresAt()));
     }
 
+    @Transactional(readOnly = true)
+    public String getShortUrl(String shortCode) {
+        Url url = urlRepository.findByShortCodeAndActiveTrue(shortCode)
+                .orElseThrow(() -> new UrlNotFoundException("URL not found: " + shortCode));
+        return baseUrl + "/" + url.getShortCode();
+    }
+
     private void registerAccess(Url url) {
         url.setAccessCount(url.getAccessCount() + 1);
         urlRepository.save(url);
