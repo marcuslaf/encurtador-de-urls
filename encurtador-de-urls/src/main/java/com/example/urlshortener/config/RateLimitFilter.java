@@ -4,6 +4,14 @@ import com.example.urlshortener.exception.RateLimitExceededException;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
+import io.github.bucket4j.distributed.ExpirationAfterWriteStrategy;
+import io.github.bucket4j.distributed.proxy.ProxyManager;
+import io.github.bucket4j.redis.lettuce.cas.LettuceBasedProxyManager;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.codec.ByteArrayCodec;
+import io.lettuce.core.codec.RedisCodec;
+import io.lettuce.core.codec.StringCodec;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +24,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
@@ -24,18 +32,28 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final Logger log = LoggerFactory.getLogger(RateLimitFilter.class);
     private static final String CREATE_PATH = "/api/urls";
 
-    private final ConcurrentHashMap<String, Bucket> buckets = new ConcurrentHashMap<>();
+    private final ProxyManager<String> proxyManager;
     private final long capacity;
     private final long refillTokens;
     private final long refillPeriodSeconds;
 
     public RateLimitFilter(
+            RedisClient redisClient,
             @Value("${app.rate-limit.capacity:10}") long capacity,
             @Value("${app.rate-limit.refill-tokens:1}") long refillTokens,
             @Value("${app.rate-limit.refill-period-seconds:6}") long refillPeriodSeconds) {
         this.capacity = capacity;
         this.refillTokens = refillTokens;
         this.refillPeriodSeconds = refillPeriodSeconds;
+
+        StatefulRedisConnection<String, byte[]> connection =
+                redisClient.connect(RedisCodec.of(StringCodec.UTF8, ByteArrayCodec.INSTANCE));
+
+        this.proxyManager = LettuceBasedProxyManager.builderFor(connection)
+                .withExpirationStrategy(
+                        ExpirationAfterWriteStrategy.basedOnTimeForRefillingBucketUpToMax(
+                                Duration.ofMinutes(10)))
+                .build();
     }
 
     @Override
@@ -48,7 +66,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         String ip = clientIp(req);
-        Bucket bucket = buckets.computeIfAbsent(ip, this::newBucket);
+        Bucket bucket = proxyManager.builder().build("ratelimit:" + ip, this::newBucketConfiguration);
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
         if (probe.isConsumed()) {
@@ -62,12 +80,11 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
     }
 
-    private Bucket newBucket(String key) {
-        Bandwidth limit = Bandwidth.builder()
+    private Bandwidth newBucketConfiguration() {
+        return Bandwidth.builder()
                 .capacity(capacity)
                 .refillIntervally(refillTokens, Duration.ofSeconds(refillPeriodSeconds))
                 .build();
-        return Bucket.builder().addLimit(limit).build();
     }
 
     private String clientIp(HttpServletRequest req) {

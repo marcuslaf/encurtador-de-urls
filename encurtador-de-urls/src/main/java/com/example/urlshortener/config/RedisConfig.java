@@ -1,23 +1,16 @@
 package com.example.urlshortener.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.cache.CacheManager;
+import io.lettuce.core.RedisClient;
+import io.lettuce.core.RedisURI;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import java.time.Duration;
 
 @Configuration
 public class RedisConfig {
-
-    public static final String REDIRECTION_CACHE = "urlRedirection";
 
     @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory cf) {
@@ -30,23 +23,13 @@ public class RedisConfig {
     }
 
     @Bean
-    public GenericJackson2JsonRedisSerializer jacksonRedisSerializer() {
-        ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
-        return new GenericJackson2JsonRedisSerializer(mapper);
-    }
-
-    @Bean
-    public CacheManager cacheManager(RedisConnectionFactory cf) {
-        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(24))
-                .disableCachingNullValues()
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .prefixCacheNameWith("urlshortener::");
-
-        return RedisCacheManager.builder(cf)
-                .cacheDefaults(defaultConfig)
-                .withCacheConfiguration(REDIRECTION_CACHE, defaultConfig.entryTtl(Duration.ofHours(24)))
+    public RedisClient redisClient(
+            @Value("${spring.data.redis.host:localhost}") String host,
+            @Value("${spring.data.redis.port:6379}") int port) {
+        RedisURI uri = RedisURI.builder()
+                .withHost(host)
+                .withPort(port)
                 .build();
+        return RedisClient.create(uri);
     }
 }
