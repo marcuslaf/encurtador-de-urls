@@ -11,6 +11,9 @@ import com.example.urlshortener.util.ShortCodeGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -127,6 +130,28 @@ public class UrlService {
         int deactivated = urlRepository.deactivateExpired(Instant.now());
         log.info("Deactivated {} expired URLs", deactivated);
         return deactivated;
+    }
+
+    @Transactional
+    public void delete(String shortCode) {
+        Url url = urlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new UrlNotFoundException("URL not found: " + shortCode));
+        url.setActive(false);
+        urlRepository.save(url);
+        cacheService.evictRedirection(shortCode);
+        log.info("Deleted (deactivated) short URL shortCode={}", shortCode);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CreateUrlResponse> listAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return urlRepository.findAllByActiveTrueOrderByCreatedAtDesc(pageable)
+                .map(u -> new CreateUrlResponse(
+                        u.getShortCode(),
+                        baseUrl + "/" + u.getShortCode(),
+                        u.getOriginalUrl(),
+                        u.getCreatedAt(),
+                        u.getExpiresAt()));
     }
 
     private void registerAccess(Url url) {
