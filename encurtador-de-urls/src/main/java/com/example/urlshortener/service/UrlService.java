@@ -24,6 +24,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Core service for URL shortening operations.
+ *
+ * <p>Handles URL creation with optional custom aliases, resolution with Redis caching,
+ * access tracking with atomic upserts, and automatic expiration management.</p>
+ *
+ * <p>Thread safety: Uses {@code @Transactional} for database consistency and
+ * atomic PostgreSQL upserts for concurrent access counting.</p>
+ *
+ * @see UrlRepository
+ * @see CacheService
+ * @see ShortCodeGenerator
+ */
 @Service
 public class UrlService {
 
@@ -52,6 +65,13 @@ public class UrlService {
         this.defaultExpirationMinutes = defaultExpirationMinutes;
     }
 
+    /**
+     * Creates a new shortened URL.
+     *
+     * @param request containing the original URL, optional expiration, and optional custom alias
+     * @return the created short URL response with short code, full URL, and timestamps
+     * @throws IllegalArgumentException if custom alias is already in use
+     */
     @Transactional
     public CreateUrlResponse shorten(CreateUrlRequest request) {
         int expirationMinutes = request.expirationMinutes() != null
@@ -90,6 +110,16 @@ public class UrlService {
                 saved.getExpiresAt());
     }
 
+    /**
+     * Resolves a short code to its original URL.
+     *
+     * <p>Checks Redis cache first, falls back to PostgreSQL on cache miss.
+     * Automatically increments access counter and logs the access.</p>
+     *
+     * @param shortCode the short code to resolve
+     * @return the original URL
+     * @throws UrlNotFoundException if the URL is not found or has expired
+     */
     @Transactional
     public String resolve(String shortCode) {
         String cached = cacheService.getRedirection(shortCode).orElse(null);
@@ -117,6 +147,13 @@ public class UrlService {
         return url.getOriginalUrl();
     }
 
+    /**
+     * Retrieves access statistics for a short URL.
+     *
+     * @param shortCode the short code to get stats for
+     * @return statistics including total accesses and daily breakdown
+     * @throws UrlNotFoundException if the URL is not found
+     */
     @Transactional(readOnly = true)
     public UrlStatsResponse getStats(String shortCode) {
         Url url = urlRepository.findByShortCode(shortCode)
@@ -134,6 +171,14 @@ public class UrlService {
         return new UrlStatsResponse(shortCode, total, daily);
     }
 
+    /**
+     * Deactivates all expired URLs using a bulk database update.
+     *
+     * <p>Called periodically by {@link com.example.urlshortener.scheduler.ExpirationScheduler}.
+     * Uses atomic JPQL update to avoid loading all expired URLs into memory.</p>
+     *
+     * @return number of URLs deactivated
+     */
     @Transactional
     public int deactivateExpired() {
         int deactivated = urlRepository.deactivateExpired(Instant.now());
@@ -141,6 +186,12 @@ public class UrlService {
         return deactivated;
     }
 
+    /**
+     * Soft-deletes a short URL by deactivating it.
+     *
+     * @param shortCode the short code to delete
+     * @throws UrlNotFoundException if the URL is not found
+     */
     @Transactional
     public void delete(String shortCode) {
         Url url = urlRepository.findByShortCode(shortCode)
@@ -151,6 +202,13 @@ public class UrlService {
         log.info("Deleted (deactivated) short URL shortCode={}", shortCode);
     }
 
+    /**
+     * Lists all active short URLs with pagination.
+     *
+     * @param page zero-based page index
+     * @param size number of items per page
+     * @return paginated list of short URL responses
+     */
     @Transactional(readOnly = true)
     public Page<CreateUrlResponse> listAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -163,6 +221,13 @@ public class UrlService {
                         u.getExpiresAt()));
     }
 
+    /**
+     * Gets the full short URL for a given short code.
+     *
+     * @param shortCode the short code
+     * @return the full short URL (e.g., http://localhost:8080/abc1234)
+     * @throws UrlNotFoundException if the URL is not found or inactive
+     */
     @Transactional(readOnly = true)
     public String getShortUrl(String shortCode) {
         Url url = urlRepository.findByShortCodeAndActiveTrue(shortCode)
