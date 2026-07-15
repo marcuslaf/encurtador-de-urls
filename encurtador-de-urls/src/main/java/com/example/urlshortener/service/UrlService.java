@@ -61,7 +61,16 @@ public class UrlService {
         Instant now = Instant.now();
         Instant expiresAt = now.plus(Duration.ofMinutes(expirationMinutes));
 
-        String shortCode = generateUniqueShortCode();
+        String shortCode;
+        if (request.customAlias() != null && !request.customAlias().isBlank()) {
+            if (urlRepository.existsByShortCode(request.customAlias())) {
+                throw new IllegalArgumentException("Custom alias already in use: " + request.customAlias());
+            }
+            shortCode = request.customAlias();
+        } else {
+            shortCode = generateUniqueShortCode();
+        }
+
         Url url = new Url(request.originalUrl(), shortCode, now, expiresAt);
 
         Url saved = urlRepository.save(url);
