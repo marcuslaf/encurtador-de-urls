@@ -24,6 +24,17 @@
 
 ---
 
+## 🔗 Links de Produção
+
+| Serviço | URL |
+|---------|-----|
+| **Frontend** | [frontend-gilt-six-31.vercel.app](https://frontend-gilt-six-31.vercel.app) |
+| **Backend API** | [url-shortener-backend.up.railway.app](https://url-shortener-backend.up.railway.app) |
+| **Swagger UI** | [url-shortener-backend.up.railway.app/swagger-ui.html](https://url-shortener-backend.up.railway.app/swagger-ui.html) |
+| **Health Check** | [url-shortener-backend.up.railway.app/actuator/health](https://url-shortener-backend.up.railway.app/actuator/health) |
+
+---
+
 ## 🇺🇸 Overview
 
 Production-grade URL shortener built with **Java 25**, **Spring Boot 3.5** and **React 19**. Features distributed rate limiting via Redis, API key authentication, QR code generation, paginated URL listing, responsive frontend with dark/light theme, and a complete CI/CD pipeline with GitHub Actions.
