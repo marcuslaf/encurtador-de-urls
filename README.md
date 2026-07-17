@@ -29,9 +29,9 @@
 | Serviço | URL |
 |---------|-----|
 | **Frontend** | [frontend-gilt-six-31.vercel.app](https://frontend-gilt-six-31.vercel.app) |
-| **Backend API** | [url-shortener-backend.up.railway.app](https://url-shortener-backend.up.railway.app) |
-| **Swagger UI** | [url-shortener-backend.up.railway.app/swagger-ui.html](https://url-shortener-backend.up.railway.app/swagger-ui.html) |
-| **Health Check** | [url-shortener-backend.up.railway.app/actuator/health](https://url-shortener-backend.up.railway.app/actuator/health) |
+| **Backend API** | [url-shortener-backend-production-01dd.up.railway.app](https://url-shortener-backend-production-01dd.up.railway.app) |
+| **Swagger UI** | [url-shortener-backend-production-01dd.up.railway.app/swagger-ui.html](https://url-shortener-backend-production-01dd.up.railway.app/swagger-ui.html) |
+| **Health Check** | [url-shortener-backend-production-01dd.up.railway.app/actuator/health](https://url-shortener-backend-production-01dd.up.railway.app/actuator/health) |
 
 ---
 
@@ -155,7 +155,7 @@ npm run dev
    - `SPRING_PROFILES_ACTIVE`: `prod`
    - `SPRING_DATASOURCE_URL`: PostgreSQL connection string (use Railway add-on)
    - `SPRING_DATA_REDIS_HOST`: Redis host (use Railway add-on)
-   - `APP_BASE_URL`: Your Railway backend URL
+   - `APP_BASE_URL`: Your Railway backend URL (e.g. `https://url-shortener-backend-production-01dd.up.railway.app`)
    - `APP_API_KEY`: Your secret API key
    - `APP_CORS_ORIGINS`: Your Vercel frontend URL
 
