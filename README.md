@@ -1,30 +1,32 @@
 <h1 align="center">🔗 URL Shortener</h1>
-<h3 align="center">Encurtador de URLs com métricas, cache Redis e autenticação por API key</h3>
+<h3 align="center">Encurtador de URLs com métricas, cache Redis, frontend React e autenticação por API key</h3>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Java-25-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java"/>
   <img src="https://img.shields.io/badge/Spring_Boot-3.5.6-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot"/>
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React"/>
+  <img src="https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"/>
+  <img src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind"/>
   <img src="https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
   <img src="https://img.shields.io/badge/Redis-7-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis"/>
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/>
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"/>
-  <img src="https://img.shields.io/badge/Tests-31%20%E2%9C%93-44CC11?style=for-the-badge" alt="Tests"/>
 </p>
 
 <p align="center">
   <a href="#-overview">Overview</a> •
   <a href="#-visão-geral">Visão Geral</a> •
   <a href="#-quick-start">Quick Start</a> •
+  <a href="#-deploy">Deploy</a> •
   <a href="#-api">API</a> •
-  <a href="#-architecture">Architecture</a> •
-  <a href="#-running-tests">Tests</a>
+  <a href="#-architecture">Architecture</a>
 </p>
 
 ---
 
 ## 🇺🇸 Overview
 
-Production-grade URL shortener built with **Java 25** and **Spring Boot 3.5**. Features distributed rate limiting via Redis, API key authentication, QR code generation, paginated URL listing, and a complete CI/CD pipeline with GitHub Actions.
+Production-grade URL shortener built with **Java 25**, **Spring Boot 3.5** and **React 19**. Features distributed rate limiting via Redis, API key authentication, QR code generation, paginated URL listing, responsive frontend with dark/light theme, and a complete CI/CD pipeline with GitHub Actions.
 
 ### Features
 
@@ -32,6 +34,7 @@ Production-grade URL shortener built with **Java 25** and **Spring Boot 3.5**. F
 |---------|-------------|
 | **Short URL Creation** | Create short URLs with optional custom aliases and configurable expiration |
 | **QR Code Generation** | Generate QR code images for any short URL |
+| **Responsive Frontend** | React + Tailwind CSS + shadcn/ui with dark/light theme |
 | **Distributed Rate Limiting** | Bucket4j + Redis for consistent limits across multiple instances |
 | **API Key Authentication** | Secure endpoints with `X-API-Key` header (stateless) |
 | **Access Metrics** | Track total accesses and daily breakdown per URL |
@@ -39,21 +42,22 @@ Production-grade URL shortener built with **Java 25** and **Spring Boot 3.5**. F
 | **Pagination** | List all active URLs with pagination support |
 | **Auto Expiration** | Hourly scheduler marks expired URLs as inactive |
 | **Virtual Threads** | Project Loom (JDK 25) for high-throughput request handling |
-| **Docker Multi-Stage** | Optimized production image with HEALTHCHECK |
+| **Docker Multi-Stage** | Optimized production images for backend and frontend |
 | **CI/CD** | GitHub Actions pipeline with Testcontainers for integration tests |
 
 ### Tech Stack
 
 ```
-Java 25 · Spring Boot 3.5 · Spring Security · PostgreSQL 15 · Redis 7
-Flyway · Bucket4j · ZXing · Testcontainers · Docker · GitHub Actions
+Backend:  Java 25 · Spring Boot 3.5 · Spring Security · PostgreSQL 15 · Redis 7
+Frontend: React 19 · TypeScript 6 · Vite 8 · Tailwind CSS 3 · shadcn/ui · Recharts
+Infra:    Flyway · Bucket4j · ZXing · Docker · GitHub Actions · Railway · Vercel
 ```
 
 ---
 
 ## 🇧🇷 Visão Geral
 
-Encurtador de URLs de produção construído com **Java 25** e **Spring Boot 3.5**. Possui rate limiting distribuído via Redis, autenticação por API key, geração de QR codes, listagem paginada de URLs e um pipeline completo de CI/CD com GitHub Actions.
+Encurtador de URLs de produção construído com **Java 25**, **Spring Boot 3.5** e **React 19**. Possui rate limiting distribuído via Redis, autenticação por API key, geração de QR codes, frontend responsivo com dark/light theme, listagem paginada de URLs e um pipeline completo de CI/CD com GitHub Actions.
 
 ### Funcionalidades
 
@@ -61,6 +65,7 @@ Encurtador de URLs de produção construído com **Java 25** e **Spring Boot 3.5
 |----------------|-----------|
 | **Criação de URL Curta** | Crie URLs curtas com aliases customizados e expiração configurável |
 | **Geração de QR Code** | Gere imagens de QR code para qualquer URL curta |
+| **Frontend Responsivo** | React + Tailwind CSS + shadcn/ui com tema dark/light |
 | **Rate Limiting Distribuído** | Bucket4j + Redis para limites consistentes entre múltiplas instâncias |
 | **Autenticação por API Key** | Endpoints seguros com header `X-API-Key` (stateless) |
 | **Métricas de Acesso** | Acompanhe acessos totais e breakdown diário por URL |
@@ -68,14 +73,15 @@ Encurtador de URLs de produção construído com **Java 25** e **Spring Boot 3.5
 | **Paginação** | Liste todas as URLs ativas com suporte a paginação |
 | **Expiração Automática** | Scheduler horário marca URLs expiradas como inativas |
 | **Virtual Threads** | Project Loom (JDK 25) para alta performance em requisições |
-| **Docker Multi-Stage** | Imagem de produção otimizada com HEALTHCHECK |
+| **Docker Multi-Stage** | Imagens de produção otimizadas para backend e frontend |
 | **CI/CD** | Pipeline GitHub Actions com Testcontainers para testes de integração |
 
 ### Stack Tecnológica
 
 ```
-Java 25 · Spring Boot 3.5 · Spring Security · PostgreSQL 15 · Redis 7
-Flyway · Bucket4j · ZXing · Testcontainers · Docker · GitHub Actions
+Backend:  Java 25 · Spring Boot 3.5 · Spring Security · PostgreSQL 15 · Redis 7
+Frontend: React 19 · TypeScript 6 · Vite 8 · Tailwind CSS 3 · shadcn/ui · Recharts
+Infra:    Flyway · Bucket4j · ZXing · Docker · GitHub Actions · Railway · Vercel
 ```
 
 ---
@@ -90,16 +96,27 @@ cd encurtador-de-urls
 docker-compose up --build
 ```
 
-This starts PostgreSQL, Redis, and the application. Access Swagger UI at `http://localhost:8080/swagger-ui.html`.
+This starts PostgreSQL, Redis, the backend and the frontend. Access:
+- **Frontend**: `http://localhost:3000`
+- **Backend API**: `http://localhost:8080`
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
 
-Isso inicia PostgreSQL, Redis e a aplicação. Acesse o Swagger UI em `http://localhost:8080/swagger-ui.html`.
+Isso inicia PostgreSQL, Redis, o backend e o frontend. Acesse:
+- **Frontend**: `http://localhost:3000`
+- **Backend API**: `http://localhost:8080`
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
 
 ### Local Development / Desenvolvimento Local
 
 ```bash
-# Prerequisites: Java 25+, Maven 3.9+, Docker Desktop
+# Backend (requires: Java 25+, Maven 3.9+, Docker Desktop)
 mvn clean package -DskipTests
 mvn spring-boot:run
+
+# Frontend (in another terminal / em outro terminal)
+cd frontend
+npm install
+npm run dev
 ```
 
 ### Environment Variables / Variáveis de Ambiente
@@ -108,11 +125,37 @@ mvn spring-boot:run
 |----------|---------|-------------------------|
 | `APP_BASE_URL` | `http://localhost:8080` | Base URL for short links / URL base para links curtos |
 | `APP_API_KEY` | _(empty = no auth)_ | API key for protected endpoints / Chave de API para endpoints protegidos |
+| `APP_CORS_ORIGINS` | `http://localhost:3000` | Allowed CORS origins / Origens permitidas no CORS |
 | `POSTGRES_HOST` | `localhost` | PostgreSQL host |
 | `POSTGRES_USER` | `postgres` | PostgreSQL username |
 | `POSTGRES_PASSWORD` | `postgres` | PostgreSQL password |
 | `REDIS_HOST` | `localhost` | Redis host |
 | `REDIS_HOST_PORT` | `6379` | Redis port |
+
+---
+
+## 🌐 Deploy
+
+### Backend (Railway)
+
+1. Connect your GitHub repo to [Railway](https://railway.app)
+2. Railway will auto-detect the `railway.json` and build the Dockerfile
+3. Set environment variables:
+   - `SPRING_PROFILES_ACTIVE`: `prod`
+   - `SPRING_DATASOURCE_URL`: PostgreSQL connection string (use Railway add-on)
+   - `SPRING_DATA_REDIS_HOST`: Redis host (use Railway add-on)
+   - `APP_BASE_URL`: Your Railway backend URL
+   - `APP_API_KEY`: Your secret API key
+   - `APP_CORS_ORIGINS`: Your Vercel frontend URL
+
+### Frontend (Vercel)
+
+1. Connect your GitHub repo to [Vercel](https://vercel.com)
+2. Set the **Root Directory** to `frontend`
+3. Vercel will auto-detect the `vercel.json` and build with Vite
+4. Set environment variables:
+   - `VITE_API_URL`: Your Railway backend URL
+   - `VITE_API_KEY`: Your API key (if using auth)
 
 ---
 
@@ -245,10 +288,13 @@ curl -X DELETE http://localhost:8080/api/urls/aB3xK9m \
 
 ## 🏗️ Architecture
 
+### Backend
+
 ```
 com.example.urlshortener
 ├── config
-│   ├── SecurityConfig          # Spring Security + API key filter
+│   ├── SecurityConfig          # Spring Security + API key filter + CORS
+│   ├── CorsConfig              # CORS configuration
 │   ├── ApiKeyAuthFilter        # X-API-Key header authentication
 │   ├── RedisConfig             # Redis + Lettuce configuration
 │   ├── RateLimitFilter         # Bucket4j distributed rate limiting
@@ -267,6 +313,35 @@ com.example.urlshortener
 └── util                        # ShortCodeGenerator (SecureRandom)
 ```
 
+### Frontend
+
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── ui/                 # shadcn/ui components (Button, Card, Dialog, Toast)
+│   │   ├── Layout.tsx          # Header + nav + Outlet
+│   │   └── StatsChart.tsx      # Recharts bar chart
+│   ├── contexts/
+│   │   └── ThemeContext.tsx     # Dark/light theme (localStorage)
+│   ├── pages/
+│   │   ├── Home.tsx            # Create short URL
+│   │   └── Dashboard.tsx       # List, search, stats, delete
+│   ├── services/
+│   │   └── api.ts              # Axios HTTP client
+│   ├── types/
+│   │   └── index.ts            # TypeScript interfaces
+│   ├── lib/
+│   │   └── utils.ts            # cn(), copyToClipboard(), formatDate()
+│   ├── App.tsx                 # Router setup
+│   ├── main.tsx                # Entry point
+│   └── index.css               # Tailwind + CSS variables
+├── nginx.conf                  # SPA routing + /api proxy
+├── Dockerfile                  # Node build + nginx serve
+├── vite.config.ts              # Vite + proxy config
+└── vercel.json                 # Vercel deployment config
+```
+
 ### Key Design Decisions / Decisões de Design
 
 | Decision | Rationale |
@@ -278,6 +353,8 @@ com.example.urlshortener
 | **No Lombok** | Guarantees JDK 25 compatibility |
 | **Virtual Threads** | High throughput for blocking Redis/JDBC calls |
 | **Testcontainers** | Fully containerized integration tests (no local DB needed) |
+| **shadcn/ui** | Copy-paste components, no dependency lock-in |
+| **nginx reverse proxy** | SPA routing + API proxy in Docker |
 
 ---
 
@@ -321,7 +398,11 @@ PostgreSQL e Redis são iniciados automaticamente via Testcontainers.
 ### Build Image / Construir Imagem
 
 ```bash
+# Backend
 docker build . --tag url-shortener:latest
+
+# Frontend
+docker build ./frontend --tag url-shortener-frontend:latest
 ```
 
 ### Run Container / Rodar Container
@@ -331,16 +412,17 @@ docker run -p 8080:8080 \
   -e POSTGRES_HOST=your-db-host \
   -e REDIS_HOST=your-redis-host \
   -e APP_API_KEY=your-secret-key \
+  -e APP_CORS_ORIGINS=http://localhost:3000 \
   url-shortener:latest
 ```
 
-The Docker image uses a multi-stage build with:
-- **Build stage**: Maven + JDK 25 for compilation
-- **Runtime stage**: JRE 25 Alpine with non-root user, HEALTHCHECK, and optimized JVM flags
+The Docker images use multi-stage builds with:
+- **Backend**: Maven + JDK 25 for compilation → JRE 25 Alpine with non-root user, HEALTHCHECK
+- **Frontend**: Node 20 for build → nginx Alpine with SPA routing and API proxy
 
-A imagem Docker usa build multi-stage com:
-- **Estágio de build**: Maven + JDK 25 para compilação
-- **Estágio de runtime**: JRE 25 Alpine com usuário non-root, HEALTHCHECK e flags JVM otimizadas
+As imagens Docker usam build multi-stage com:
+- **Backend**: Maven + JDK 25 para compilação → JRE 25 Alpine com usuário non-root, HEALTHCHECK
+- **Frontend**: Node 20 para build → nginx Alpine com roteamento SPA e proxy de API
 
 ---
 
@@ -348,8 +430,14 @@ A imagem Docker usa build multi-stage com:
 
 ```
 ├── .github/workflows/         # CI/CD pipeline
-├── docker-compose.yml         # PostgreSQL + Redis + App
-├── Dockerfile                 # Multi-stage production build
+├── docker-compose.yml         # PostgreSQL + Redis + App + Frontend
+├── Dockerfile                 # Multi-stage backend build
+├── frontend/                  # React frontend
+│   ├── Dockerfile             # Multi-stage frontend build
+│   ├── nginx.conf             # SPA routing + API proxy
+│   ├── src/                   # React source code
+│   └── vercel.json            # Vercel deployment config
+├── railway.json               # Railway deployment config
 ├── LICENSE                    # MIT License
 ├── pom.xml                    # Maven dependencies
 ├── README.md                  # This file
@@ -375,6 +463,6 @@ Distribuído sob a licença **MIT**. Veja [LICENSE](LICENSE) para mais informaç
 ---
 
 <p align="center">
-  Built with ☕ Java 25 + 🌱 Spring Boot 3.5<br>
-  <sub>Desenvolvido com ☕ Java 25 + 🌱 Spring Boot 3.5</sub>
+  Built with ☕ Java 25 + 🌱 Spring Boot 3.5 + ⚛️ React 19<br>
+  <sub>Desenvolvido com ☕ Java 25 + 🌱 Spring Boot 3.5 + ⚛️ React 19</sub>
 </p>
