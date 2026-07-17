@@ -11,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
@@ -21,9 +22,21 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         this.expectedApiKey = expectedApiKey;
     }
 
+    private static final Set<String> SKIP_PATHS = Set.of(
+            "/actuator/health", "/actuator/info",
+            "/swagger-ui", "/v3/api-docs"
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        String path = request.getRequestURI();
+
+        if (SKIP_PATHS.stream().anyMatch(path::startsWith)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String apiKey = request.getHeader(API_KEY_HEADER);
 
