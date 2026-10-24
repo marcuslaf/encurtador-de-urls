@@ -1,6 +1,5 @@
 package com.example.urlshortener.config;
 
-import com.example.urlshortener.exception.RateLimitExceededException;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
@@ -20,11 +19,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.time.Instant;
 
 @Component
 public class RateLimitFilter extends OncePerRequestFilter {
@@ -74,9 +76,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
             chain.doFilter(req, res);
         } else {
             long waitSeconds = Math.max(1, probe.getNanosToWaitForRefill() / 1_000_000_000L);
-            res.setHeader("Retry-After", String.valueOf(waitSeconds));
             log.warn("Rate limit exceeded for IP {}", ip);
-            throw new RateLimitExceededException("Too many requests. Try again in " + waitSeconds + "s.");
+            res.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+            res.setHeader("Retry-After", String.valueOf(waitSeconds));
+            res.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            String message = "Too many requests. Try again in " + waitSeconds + "s.";
+            res.getWriter().write("{\"timestamp\":\"" + Instant.now() + "\",\"status\":429,"
+                    + "\"error\":\"Too Many Requests\",\"message\":\"" + message + "\"}");
+            res.getWriter().flush();
         }
     }
 
