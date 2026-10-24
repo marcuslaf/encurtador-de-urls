@@ -65,7 +65,8 @@ class UrlIntegrationTest extends IntegrationTestBase {
         assertThat(cached).isEqualTo("https://example.com/some/long/path");
 
         // Verificar estatísticas
-        MvcResult statsResult = mockMvc.perform(get("/api/urls/" + body.shortCode() + "/stats"))
+        MvcResult statsResult = mockMvc.perform(get("/api/urls/" + body.shortCode() + "/stats")
+                        .header("X-API-Key", "test-api-key"))
                 .andExpect(status().isOk())
                 .andReturn();
 
