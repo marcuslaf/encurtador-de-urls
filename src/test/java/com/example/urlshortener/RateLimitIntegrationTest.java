@@ -29,6 +29,7 @@ class RateLimitIntegrationTest extends IntegrationTestBase {
         for (int i = 0; i < 10; i++) {
             mockMvc.perform(post("/api/urls")
                             .with(req1 -> { req1.setRemoteAddr("198.51.100.7"); return req1; })
+                            .header("X-API-Key", "test-api-key")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(body))
                     .andExpect(status().isCreated());
@@ -37,6 +38,7 @@ class RateLimitIntegrationTest extends IntegrationTestBase {
         // 11ª requisição deve ser bloqueada
         mockMvc.perform(post("/api/urls")
                         .with(req1 -> { req1.setRemoteAddr("198.51.100.7"); return req1; })
+                        .header("X-API-Key", "test-api-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isTooManyRequests())

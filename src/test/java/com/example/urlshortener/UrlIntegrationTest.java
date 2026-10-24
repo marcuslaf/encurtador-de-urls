@@ -39,6 +39,7 @@ class UrlIntegrationTest extends IntegrationTestBase {
 
         MvcResult created = mockMvc.perform(post("/api/urls")
                         .with(req1 -> { req1.setRemoteAddr("203.0.113.1"); return req1; })
+                        .header("X-API-Key", "test-api-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isCreated())
@@ -85,6 +86,7 @@ class UrlIntegrationTest extends IntegrationTestBase {
         CreateUrlRequest req = new CreateUrlRequest("not-a-url", 60, null);
         mockMvc.perform(post("/api/urls")
                         .with(req1 -> { req1.setRemoteAddr("203.0.113.2"); return req1; })
+                        .header("X-API-Key", "test-api-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isBadRequest());
