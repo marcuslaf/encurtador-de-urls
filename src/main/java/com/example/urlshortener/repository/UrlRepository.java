@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 public interface UrlRepository extends JpaRepository<Url, Long> {
@@ -20,6 +21,9 @@ public interface UrlRepository extends JpaRepository<Url, Long> {
     @Modifying
     @Query("UPDATE Url u SET u.active = false WHERE u.active = true AND u.expiresAt < :now")
     int deactivateExpired(@Param("now") Instant now);
+
+    @Query("SELECT u.shortCode FROM Url u WHERE u.active = true AND u.expiresAt < :now")
+    List<String> findExpiredShortCodes(@Param("now") Instant now);
 
     Page<Url> findAllByActiveTrueOrderByCreatedAtDesc(Pageable pageable);
 

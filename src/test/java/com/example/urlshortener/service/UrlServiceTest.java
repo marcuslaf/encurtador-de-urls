@@ -140,12 +140,15 @@ class UrlServiceTest {
 
     @Test
     void deactivateExpiredShouldUseBulkUpdate() {
+        when(urlRepository.findExpiredShortCodes(any(Instant.class))).thenReturn(List.of(CODE, "other123"));
         when(urlRepository.deactivateExpired(any(Instant.class))).thenReturn(2);
 
         int count = urlService.deactivateExpired();
 
         assertEquals(2, count);
         verify(urlRepository).deactivateExpired(any(Instant.class));
+        verify(cacheService).evictRedirection(CODE);
+        verify(cacheService).evictRedirection("other123");
     }
 
     private Url sampleUrl() {

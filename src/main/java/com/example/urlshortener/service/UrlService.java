@@ -181,7 +181,10 @@ public class UrlService {
      */
     @Transactional
     public int deactivateExpired() {
-        int deactivated = urlRepository.deactivateExpired(Instant.now());
+        Instant now = Instant.now();
+        List<String> expiredCodes = urlRepository.findExpiredShortCodes(now);
+        int deactivated = urlRepository.deactivateExpired(now);
+        expiredCodes.forEach(cacheService::evictRedirection);
         log.info("Deactivated {} expired URLs", deactivated);
         return deactivated;
     }
